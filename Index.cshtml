@@ -1,0 +1,136 @@
+﻿
+        <table id="datatable"  class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last Name</th> 
+                <th>Gender</th>
+                <th>Job Title</th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Gender</th>
+                <th>Job Title</th>
+            </tr>
+            </tfoot>
+        </table>
+
+@section Scripts{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.form.min.js"></script>
+    <script>
+        var getUrl = "@Url.Action("GetEmployees")";
+        function SPDT(oColumns, onPgChange, pgLength, tableAjaxLinkUrl, columns, bServerSide, sAjaxSource, sServerMethod, initComplete, serverSide, processing,
+           drawCallback, searchText) {
+
+            initComplete = initComplete != undefined ? initComplete : function () { };
+            var pr = parseInt(pgLength != undefined ? pgLength : 10);
+ 
+            var ret = {
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6 width100'i><'col-sm-6 width100'p>> r",
+                "iDisplayLength": isNaN(pr) ? 10 : pr,
+                "oLanguage": {
+                    "sLengthMenu": '_MENU_',
+                    "sInfoEmpty": "لا توجد سجلات لعرضها",
+                    "sInfo": "",
+                    "sInfoFiltered": " - تصفية من _MAX_ صفوف",
+                    "sSearch": searchText === undefined || searchText === null || searchText === "" ? "بحث" : searchText,
+                    "sProcessing": "<i class='text-red fa fa-refresh fa-spin' style='font-size:20px;font-weight:bolder;'></i>",
+                    "sZeroRecords": "لا توجد سجلات مطابقة",
+                    "oPaginate": {
+                        "sPrevious": "السابق",
+                        "sNext": "التالى",
+                        "sLast": "الأخير",
+                        "sFirst": "الأول"
+                    }
+                },
+                "oTableTools": {
+                    "aButtons": [
+                    ]
+                },
+                "order": [[0, "asc"]],
+               
+                "initComplete": function () {
+                    initComplete();
+                    $(".buttons-html5,.buttons-print").addClass("btn-sm btn-danger").removeClass("btn-default");
+                },
+                "deferRender": true,
+
+                "columns":  columns,
+                "bServerSide": bServerSide,
+                "sAjaxSource": sAjaxSource,
+                "sServerMethod": sServerMethod,
+
+                "aaSorting": [],
+                "fnDrawCallback": function () {
+
+                    onPgChange();
+
+                    $('a[data-toggle="dropdown"]').dropdown();
+                    $('button[data-toggle="dropdown"]').dropdown();
+                },
+                responsive: true
+            };
+            return ret;
+        }
+
+        function RefreshTable() {
+
+            $('#datatable > tbody > tr').each(function () {
+                // $(this).find('td').eq(0).addClass("hidden");
+                if ($(this).find('td').eq(3).text() == "Male") {
+                    var Gender = '<label class="label label-primary">Male</label>';
+                    $(this).find('td').eq(3).html(Gender);
+                } else {
+                    var Gender = '<label class="label label-info">Female</label>';
+                    $(this).find('td').eq(3).html(Gender);
+                }
+
+            });
+        }
+
+        var tbColumns = SPDT([
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "searchable": false, "bSortable": false }
+                ], function () {
+                    RefreshTable();
+                }, null, null, [
+                { 'data': 'Id' },
+                { 'data': 'FirstName' },
+                { 'data': 'LastName' },
+                { 'data': 'Gender' },
+                { 'data': 'JobTitle' }
+            ],
+            true,
+            getUrl,
+            'post'
+            )
+            ;
+    </script>
+    @*<script type="text/javascript">
+        var getUrl = "@Url.Action("GetEmployees")";
+        $(document).ready(function () {
+            $('#datatable').DataTable({
+                columns: [
+                    { 'data': 'Id' },
+                    { 'data': 'FirstName' },
+                    { 'data': 'LastName' },
+                    { 'data': 'Gender' },
+                    { 'data': 'JobTitle' }
+                ],
+                bServerSide: true,
+                sAjaxSource: getUrl,
+                sServerMethod: 'post'
+            });
+        });
+    </script>*@
+   
+}

@@ -1,0 +1,69 @@
+create proc spGetEmployees
+@DisplayLength int,
+@DisplayStart int,
+@SortCol int,
+@SortDir nvarchar(10),
+@Search nvarchar(255) = NULL
+as
+begin
+    Declare @FirstRec int, @LastRec int
+    Set @FirstRec = @DisplayStart;
+    Set @LastRec = @DisplayStart + @DisplayLength;
+   
+    With CTE_Employees as
+    (
+         Select ROW_NUMBER() over (order by
+        
+         case when (@SortCol = 0 and @SortDir='asc')
+             then Id
+         end asc,
+         case when (@SortCol = 0 and @SortDir='desc')
+             then Id
+         end desc,
+        
+        case when (@SortCol = 1 and @SortDir='asc')
+             then FirstName
+        end asc,
+        case when (@SortCol = 1 and @SortDir='desc')
+            then FirstName
+        end desc,
+
+        case when (@SortCol = 2 and @SortDir='asc')
+            then LastName
+        end asc,
+        case when (@SortCol = 2 and @SortDir='desc')
+            then LastName
+        end desc,
+
+        case when (@SortCol = 3 and @SortDir='asc')
+            then Gender
+        end asc,
+        case when (@SortCol = 3 and @SortDir='desc')
+            then Gender
+        end desc,
+
+        case when (@SortCol = 4 and @SortDir='asc')
+            then JobTitle
+        end asc,
+        case when (@SortCol = 4 and @SortDir='desc')
+            then JobTitle
+        end desc)
+         as RowNum,
+         COUNT(*) over() as TotalCount,
+         Id,
+         FirstName,
+         LastName,
+         Gender,
+         JobTitle
+         from tblEmployees
+         where (@Search IS NULL
+                 Or Id like '%' + @Search + '%'
+                 Or FirstName like '%' + @Search + '%'
+                 Or LastName like '%' + @Search + '%'
+                 Or Gender like '%' + @Search + '%'
+                 Or JobTitle like '%' + @Search + '%')
+    )
+    Select *
+    from CTE_Employees
+    where RowNum > @FirstRec and RowNum <= @LastRec
+end
